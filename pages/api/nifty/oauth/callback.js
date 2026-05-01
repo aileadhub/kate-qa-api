@@ -5,7 +5,7 @@ const kv = new Redis({
   token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-const NIFTY_TOKEN_URL = 'https://openapi.niftypm.com/api/v1.0/oauth/token';
+const NIFTY_TOKEN_URL = 'https://openapi.niftypm.com/oauth/token';
 
 export default async function handler(req, res) {
   const { code, error } = req.query;
