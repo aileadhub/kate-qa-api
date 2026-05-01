@@ -3,9 +3,10 @@ import { getAccessToken } from '../../../lib/nifty';
 
 const NIFTY_API = 'https://openapi.niftypm.com/api/v1.0';
 
-// Diagnostic endpoint — two modes:
-//   GET  ?project_id=UcBgrt1c0BJhl  → dump raw task/group data for a project
-//   POST ?path=/tasks/Ypa2FCr3Jc/messages  body: any JSON  → proxy raw Nifty call
+// Diagnostic endpoint — three modes:
+//   GET  ?project_id=UcBgrt1c0BJhl          → dump raw task/group data for a project
+//   POST ?path=/tasks/Ypa2FCr3Jc/messages   → proxy raw POST to Nifty
+//   PUT  ?path=/tasks/Ypa2FCr3Jc            → proxy raw PUT to Nifty
 export default async function handler(req, res) {
   if (!requireApiToken(req, res)) return;
 
@@ -13,11 +14,11 @@ export default async function handler(req, res) {
     const token = await getAccessToken();
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    if (req.method === 'POST') {
+    if (req.method === 'POST' || req.method === 'PUT') {
       const { path } = req.query;
       if (!path) return res.status(400).json({ error: 'missing path query param' });
       const niftyRes = await fetch(`${NIFTY_API}${path}`, {
-        method: 'POST',
+        method: req.method,
         headers,
         body: JSON.stringify(req.body),
       });
