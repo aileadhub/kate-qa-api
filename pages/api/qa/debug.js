@@ -47,11 +47,15 @@ export default async function handler(req, res) {
       groups[gid] = gRes.ok ? await gRes.json() : { error: gRes.status, body: await gRes.text() };
     }
 
-    const sampleTask = tasks[0] || null;
+    const { group_id } = req.query;
+    const filtered = group_id ? tasks.filter((t) => t.task_group === group_id) : tasks;
+    const sampleTask = filtered[0] || null;
     res.status(200).json({
       project_id,
       task_count: tasks.length,
-      sample_task: sampleTask,
+      filtered_count: filtered.length,
+      filter_group_id: group_id || null,
+      tasks: filtered.map((t) => ({ id: t.id, nice_id: t.nice_id, name: t.name, task_group: t.task_group, completed: t.completed })),
       sample_task_keys: sampleTask ? Object.keys(sampleTask) : null,
       group_ids_on_tasks: groupIds,
       groups,
