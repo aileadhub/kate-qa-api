@@ -25,20 +25,18 @@ export default async function handler(req, res) {
       const probeL = async (url) => {
         const r = await fetch(url, { headers: h });
         const b = await r.text();
-        return { status: r.status, body: b.slice(0, 2000) };
+        return { status: r.status, body: b.slice(0, 5000) };
       };
-      const [r1, r2, r3, r4] = await Promise.all([
+      const [r1, r2, r3] = await Promise.all([
         probeL(`${NIFTY_API}/projects/${PROJECT_ID}`),
-        probe(`${NIFTY_API}/taskgroups?project_id=${PROJECT_ID}`),
-        probe(`${NIFTY_API}/tasks?task_group_id=PLACEHOLDER`),
-        probe(`${NIFTY_API}/users/me`),
+        probe(`${NIFTY_API}/projects/${PROJECT_ID}/taskgroups`),
+        probe(`${NIFTY_API}/projects/${PROJECT_ID}/tasks`),
       ]);
       return res.status(200).json({
         token_preview: tokenPreview,
         project_full: r1,
-        taskgroups_by_project: r2,
-        tasks_by_group: r3,
-        users_me: r4,
+        project_taskgroups: r2,
+        project_tasks: r3,
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
