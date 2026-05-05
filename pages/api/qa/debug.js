@@ -22,21 +22,24 @@ export default async function handler(req, res) {
         return { status: r.status, body: b.slice(0, 300) };
       };
       const PROJECT_ID = 'UcBgrt1c0BJhl';
+      const ALT_API = 'https://api.niftypm.com';
       const probeL = async (url) => {
         const r = await fetch(url, { headers: h });
         const b = await r.text();
-        return { status: r.status, body: b.slice(0, 5000) };
+        return { status: r.status, body: b.slice(0, 3000) };
       };
-      const [r1, r2, r3] = await Promise.all([
-        probeL(`${NIFTY_API}/projects/${PROJECT_ID}`),
-        probe(`${NIFTY_API}/projects/${PROJECT_ID}/taskgroups`),
-        probe(`${NIFTY_API}/projects/${PROJECT_ID}/tasks`),
+      const [r1, r2, r3, r4] = await Promise.all([
+        probeL(`${ALT_API}/task_groups?project_ids=${PROJECT_ID}`),
+        probeL(`${ALT_API}/tasks?project_ids=${PROJECT_ID}&limit=5`),
+        probe(`${NIFTY_API}/tasks?project_id=${PROJECT_ID}`),
+        probe(`${NIFTY_API}/users/me`),
       ]);
       return res.status(200).json({
         token_preview: tokenPreview,
-        project_full: r1,
-        project_taskgroups: r2,
-        project_tasks: r3,
+        alt_task_groups: r1,
+        alt_tasks: r2,
+        openapi_tasks: r3,
+        users_me: r4,
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
