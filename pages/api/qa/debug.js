@@ -15,11 +15,21 @@ export default async function handler(req, res) {
     try {
       const token = await getAccessToken();
       const tokenPreview = token ? `${token.slice(0, 12)}...${token.slice(-6)} (len=${token.length})` : 'null/undefined';
-      const raw = await fetch(`${NIFTY_API}/tasks`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      // Test 1: GET /tasks (no filter)
+      const r1 = await fetch(`${NIFTY_API}/tasks`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const body = await raw.text();
-      return res.status(200).json({ token_preview: tokenPreview, nifty_status: raw.status, nifty_body: body.slice(0, 300) });
+      const b1 = await r1.text();
+      // Test 2: GET /tasks?project_id=UcBgrt1c0BJhl (riseup-moving)
+      const r2 = await fetch(`${NIFTY_API}/tasks?project_id=UcBgrt1c0BJhl`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const b2 = await r2.text();
+      return res.status(200).json({
+        token_preview: tokenPreview,
+        no_filter: { status: r1.status, body: b1.slice(0, 200) },
+        with_project: { status: r2.status, body: b2.slice(0, 200) },
+      });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
