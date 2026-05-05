@@ -3,8 +3,10 @@ import { getAccessToken } from '../../../lib/nifty';
 
 const NIFTY_API = 'https://openapi.niftypm.com/api/v1.0';
 
-// Diagnostic endpoint — three modes:
+// Diagnostic endpoint — four modes:
+//   GET  ?probe=true                         → token health check
 //   GET  ?project_id=UcBgrt1c0BJhl          → dump raw task/group data for a project
+//   GET  ?get_path=/members?project_id=...  → proxy raw GET to Nifty
 //   POST ?path=/tasks/Ypa2FCr3Jc/messages   → proxy raw POST to Nifty
 //   PUT  ?path=/tasks/Ypa2FCr3Jc            → proxy raw PUT to Nifty
 export default async function handler(req, res) {
@@ -49,6 +51,14 @@ export default async function handler(req, res) {
   try {
     const token = await getAccessToken();
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    if (req.method === 'GET' && req.query.get_path) {
+      const niftyRes = await fetch(`${NIFTY_API}${req.query.get_path}`, { headers });
+      const text = await niftyRes.text();
+      let json;
+      try { json = JSON.parse(text); } catch { json = text; }
+      return res.status(niftyRes.status).json({ nifty_status: niftyRes.status, response: json });
+    }
 
     if (req.method === 'POST' || req.method === 'PUT') {
       const { path } = req.query;
