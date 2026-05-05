@@ -15,20 +15,26 @@ export default async function handler(req, res) {
     try {
       const token = await getAccessToken();
       const tokenPreview = token ? `${token.slice(0, 12)}...${token.slice(-6)} (len=${token.length})` : 'null/undefined';
-      // Test 1: GET /tasks (no filter)
-      const r1 = await fetch(`${NIFTY_API}/tasks`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const b1 = await r1.text();
-      // Test 2: GET /tasks?project_id=UcBgrt1c0BJhl (riseup-moving)
-      const r2 = await fetch(`${NIFTY_API}/tasks?project_id=UcBgrt1c0BJhl`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const b2 = await r2.text();
+      const h = { Authorization: `Bearer ${token}` };
+      const probe = async (url) => {
+        const r = await fetch(url, { headers: h });
+        const b = await r.text();
+        return { status: r.status, body: b.slice(0, 300) };
+      };
+      const [r1, r2, r3, r4, r5] = await Promise.all([
+        probe(`${NIFTY_API}/tasks`),
+        probe(`${NIFTY_API}/tasks?project_id=UcBgrt1c0BJhl`),
+        probe(`${NIFTY_API}/projects`),
+        probe(`${NIFTY_API}/workspaces`),
+        probe(`${NIFTY_API}/users/me`),
+      ]);
       return res.status(200).json({
         token_preview: tokenPreview,
-        no_filter: { status: r1.status, body: b1.slice(0, 200) },
-        with_project: { status: r2.status, body: b2.slice(0, 200) },
+        tasks_no_filter: r1,
+        tasks_riseup: r2,
+        projects: r3,
+        workspaces: r4,
+        users_me: r5,
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
