@@ -21,20 +21,29 @@ export default async function handler(req, res) {
         const b = await r.text();
         return { status: r.status, body: b.slice(0, 300) };
       };
-      const [r1, r2, r3, r4, r5] = await Promise.all([
-        probe(`${NIFTY_API}/tasks`),
-        probe(`${NIFTY_API}/tasks?project_id=UcBgrt1c0BJhl`),
+      const TEAM_ID = 'cCiEyUDkAdGA';
+      const USER_ID = 'ER4StOqiix!pe3';
+      const PROJECT_ID = 'UcBgrt1c0BJhl';
+      const [r1, r2, r3, r4, r5, r6, r7, r8] = await Promise.all([
+        probe(`${NIFTY_API}/tasks?project_id=${PROJECT_ID}`),
+        probe(`${NIFTY_API}/tasks?member_id=${USER_ID}`),
+        probe(`${NIFTY_API}/tasks?team_id=${TEAM_ID}`),
         probe(`${NIFTY_API}/projects`),
-        probe(`${NIFTY_API}/workspaces`),
+        probe(`${NIFTY_API}/projects?team_id=${TEAM_ID}`),
+        probe(`${NIFTY_API}/projects/${PROJECT_ID}`),
         probe(`${NIFTY_API}/users/me`),
+        probe(`${NIFTY_API}/teams`),
       ]);
       return res.status(200).json({
         token_preview: tokenPreview,
-        tasks_no_filter: r1,
-        tasks_riseup: r2,
-        projects: r3,
-        workspaces: r4,
-        users_me: r5,
+        tasks_project_id: r1,
+        tasks_member_id: r2,
+        tasks_team_id: r3,
+        projects_no_filter: r4,
+        projects_team_id: r5,
+        project_direct: r6,
+        users_me: r7,
+        teams: r8,
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
