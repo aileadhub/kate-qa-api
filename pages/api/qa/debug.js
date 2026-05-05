@@ -10,6 +10,21 @@ const NIFTY_API = 'https://openapi.niftypm.com/api/v1.0';
 export default async function handler(req, res) {
   if (!requireApiToken(req, res)) return;
 
+  // Token probe mode — GET ?probe=true
+  if (req.method === 'GET' && req.query.probe) {
+    try {
+      const token = await getAccessToken();
+      const tokenPreview = token ? `${token.slice(0, 12)}...${token.slice(-6)} (len=${token.length})` : 'null/undefined';
+      const raw = await fetch(`${NIFTY_API}/tasks`, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
+      const body = await raw.text();
+      return res.status(200).json({ token_preview: tokenPreview, nifty_status: raw.status, nifty_body: body.slice(0, 300) });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   try {
     const token = await getAccessToken();
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
