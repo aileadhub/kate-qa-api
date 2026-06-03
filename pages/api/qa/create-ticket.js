@@ -2,8 +2,9 @@ import { requireApiToken } from '../../../lib/middleware';
 import { createTask } from '../../../lib/nifty';
 
 const VALID_SLUGS = [
-  'amp-movers', 'boxstar', 'cali-moving', 'ellis-moving',
-  'helix', 'macs-moving', 'potomac-movers', 'riseup-moving',
+  'amp-movers', 'boxstar', 'cali-moving', 'dependable-movers', 'ellis-moving',
+  'helix', 'lending-group', 'macs-moving', 'potomac-movers', 'riseup-moving',
+  'absolute-movers', 'wise-choice-movers',
 ];
 
 export default async function handler(req, res) {
