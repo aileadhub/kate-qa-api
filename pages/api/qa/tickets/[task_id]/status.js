@@ -1,7 +1,7 @@
 import { requireApiToken } from '../../../../../lib/middleware';
 import { updateTaskStatus } from '../../../../../lib/nifty';
 
-const VALID_STATUSES = ['QA Complete', 'Ready for Dev', 'Ready for QA'];
+const VALID_STATUSES = ['Completed', 'Ready for Dev', 'Ready for QA'];
 
 export default async function handler(req, res) {
   if (!requireApiToken(req, res)) return;
