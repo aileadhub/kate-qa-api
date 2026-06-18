@@ -4,7 +4,7 @@ import { createTask } from '../../../lib/nifty';
 const VALID_SLUGS = [
   'amp-movers', 'boxstar', 'cali-moving', 'dependable-movers', 'ellis-moving',
   'helix', 'lending-group', 'macs-moving', 'potomac-movers', 'riseup-moving',
-  'absolute-movers', 'wise-choice-movers',
+  'absolute-movers', 'wise-choice-movers', 'fair-play-movers',
 ];
 
 export default async function handler(req, res) {
